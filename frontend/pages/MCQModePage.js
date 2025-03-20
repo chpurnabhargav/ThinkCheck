@@ -63,7 +63,7 @@ const MCQQuizGenerator = () => {
     setError("");
     
     try {
-      const response = await axios.post("http://localhost:5000/generate-mcq", {
+      const response = await axios.post("https://thinkcheck.onrender.com/generate-mcq", {
         topic,
         numQuestions: parseInt(numQuestions),
         difficulty,
