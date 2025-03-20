@@ -10,6 +10,86 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('Welcome to the MCQ Generator API. Use the /generate-mcq, /generate-written, /evaluate-answers, or /generate-roadmap endpoints to interact with the service.');
   })
+  app.post('/suggestion', async (req, res) => {
+    try {
+      // Extract student responses from request body
+      const { responses } = req.body;
+      
+      if (!responses || !Array.isArray(responses) || responses.length < 10) {
+        return res.status(400).json({ error: 'Please provide at least 10 question responses' });
+      }
+  
+      // Format the prompt for Gemini API
+      const prompt = formatPromptFromResponses(responses);
+      
+      // Call Gemini API
+      const geminiResponse = await axios.post(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
+        {
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ]
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`
+          }
+        }
+      );
+  
+      // Process and return the educational suggestions
+      const suggestions = processSuggestions(geminiResponse.data);
+      
+      res.json({
+        success: true,
+        suggestions
+      });
+    } catch (error) {
+      console.error('Error generating educational suggestions:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate educational suggestions',
+        details: error.message
+      });
+    }
+  });
+  
+  // Helper function to format the prompt from student responses
+  function formatPromptFromResponses(responses) {
+    // Extract interests, skills, and preferences from responses
+    const interestsStr = responses.map((r, i) => `Question ${i+1}: ${r.question}\nAnswer: ${r.answer}`).join('\n\n');
+    
+    return `
+  Based on the following student responses, suggest appropriate educational paths after high school, including but not limited to B.Tech programs. Consider various domains and career paths that match their interests and aptitudes.
+  
+  ${interestsStr}
+  
+  Please provide:
+  1. Top 3 recommended educational paths with justification
+  2. Specific courses or majors within each path
+  3. Potential career outcomes for each path
+  4. Alternative options beyond traditional degree programs (if appropriate)
+  5. Skills the student should develop regardless of their chosen path
+  `;
+  }
+  
+  // Helper function to process and structure the suggestions from Gemini
+  function processSuggestions(geminiData) {
+    // Extract the text response from Gemini
+    const responseText = geminiData.candidates[0].content.parts[0].text;
+    
+    // For now, return the raw response - in production you might parse it into a more structured format
+    return {
+      rawSuggestions: responseText,
+      // You could add more structured fields here by parsing the response
+    };
+  }
   
 app.post('/generate-mcq', async (req, res) => {
     const { topic, numQuestions } = req.body;
@@ -587,6 +667,137 @@ app.post('/generate-roadmap', async (req, res) => {
         });
     }
 });
-
 // Start the server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.post('/notes', async (req, res) => {
+    const { subject, level, format } = req.body;
+    
+    if (!subject) {
+        return res.status(400).json({ error: "Missing subject parameter" });
+    }
+    
+    if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment variables" });
+    }
+    
+    try {
+        const response = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`,
+            {
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: `Generate comprehensive study notes on the subject: ${subject}.
+                                
+Subject details: ${subject}
+Complexity level: ${level || 'intermediate'}
+Format preference: ${format || 'structured'}
+
+Create detailed notes that:
+1. Provide a clear introduction to the subject
+2. Break down the key concepts and principles
+3. Include important definitions, formulas, and examples
+4. Highlight common applications or use cases
+5. Organize content with appropriate headings and subheadings
+6. Include diagrams or visual descriptions where relevant
+7. Maintain a ${level || 'intermediate'} level of complexity
+8. Format the notes in a ${format || 'structured'} style with clear sections
+9. Include a brief summary at the end
+
+For any technical subjects, properly format code examples, mathematical formulas, and specialized notations.`
+                            }
+                        ]
+                    }
+                ],
+                generationConfig: {
+                    temperature: 0.2,
+                    topP: 0.95,
+                    maxOutputTokens: 8192
+                }
+            },
+            {
+                params: { key: process.env.GEMINI_API_KEY },
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+        
+        // Extract text from response
+        const notesText = response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        
+        if (!notesText) {
+            console.error("Notes text is empty or undefined!");
+            return res.status(500).json({ error: "Empty response from Gemini API" });
+        }
+        
+        // Parse the notes to provide a structured response
+        const notes = parseNotes(notesText, subject, level || 'intermediate');
+        
+        res.json({ 
+            success: true,
+            subject,
+            level: level || 'intermediate',
+            format: format || 'structured',
+            notes 
+        });
+    } catch (error) {
+        console.error("Error generating notes:", error.response?.data || error.message);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to generate notes",
+            message: error.message
+        });
+    }
+});
+
+function parseNotes(notesText, subject, level) {
+    // Extract sections using regex patterns
+    const sections = [];
+    
+    // Split by headers (# or ## format)
+    const headerRegex = /(?:^|\n)(?:#{1,3})\s+(.+?)(?:\n|$)/g;
+    
+    let lastIndex = 0;
+    let match;
+    let headerPositions = [];
+    
+    // Find all headers and their positions
+    while ((match = headerRegex.exec(notesText)) !== null) {
+        headerPositions.push({
+            title: match[1].trim(),
+            startIndex: match.index,
+            endIndex: match.index + match[0].length
+        });
+    }
+    
+    // Process each section
+    for (let i = 0; i < headerPositions.length; i++) {
+        const currentHeader = headerPositions[i];
+        const nextHeader = headerPositions[i + 1];
+        
+        // Extract section content
+        const sectionContent = nextHeader 
+            ? notesText.substring(currentHeader.endIndex, nextHeader.startIndex).trim()
+            : notesText.substring(currentHeader.endIndex).trim();
+        
+        sections.push({
+            title: currentHeader.title,
+            content: sectionContent
+        });
+    }
+    
+    // If no sections were found, return the entire text as one section
+    if (sections.length === 0) {
+        sections.push({
+            title: subject,
+            content: notesText
+        });
+    }
+    
+    return {
+        title: subject,
+        level: level,
+        sections: sections,
+        rawContent: notesText
+    };
+}

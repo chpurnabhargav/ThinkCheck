@@ -349,6 +349,20 @@ const Home = () => {
                       <Map className="w-5 h-5 mr-2" />
                       <span className="text-lg font-medium">Straight To Success</span>
                     </button>
+                    <button 
+                      onClick={() => router.push("/Suggestion")}
+                      className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md"
+                    >
+                      <Map className="w-5 h-5 mr-2" />
+                      <span className="text-lg font-medium">Suggestions</span>
+                    </button>
+                    <button 
+                      onClick={() => router.push("/Notes")}
+                      className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md"
+                    >
+                      <Map className="w-5 h-5 mr-2" />
+                      <span className="text-lg font-medium">Notes</span>
+                    </button>
                   </div>
                 </SignedIn>
               </div>
@@ -621,20 +635,9 @@ const Home = () => {
           Revolutionizing educational assessment with AI-powered learning tools.
         </p>
         <div className="flex justify-center md:justify-start space-x-4">
-          <a href="#" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
-            <FaTwitter className="w-5 h-5" />
-          </a>
-          <a href="#" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
-            <FaFacebook className="w-5 h-5" />
-          </a>
-          <a href="#" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
-            <FaLinkedin className="w-5 h-5" />
-          </a>
-          <a href="#" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
-            <FaInstagram className="w-5 h-5" />
-          </a>
-          <a href="#" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
-            <FaGithub className="w-5 h-5" />
+          
+          <a href="https://github.com/chpurnabhargav/" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
+            <FaGithub className="w-9 h-9" />
           </a>
         </div>
       </div>
