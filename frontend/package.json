@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
+    "@tailwindcss/oxide": "^4.0.15",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4"
   }
