@@ -24,7 +24,7 @@ const NotesGenerator = () => {
     setError(null);
     
     try {
-      const response = await axios.post('http://localhost:5000/notes', {
+      const response = await axios.post('https://thinkcheck.onrender.com/notes', {
         subject,
         level,
         format

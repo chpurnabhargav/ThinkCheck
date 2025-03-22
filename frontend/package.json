@@ -4,11 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm rebuild @tailwindcss/oxide && next build",
     "start": "next start",
     "lint": "next lint",
-    "prebuild": "node-gyp rebuild && npm install @tailwindcss/oxide-linux-x64-gnu",
-    "build": "npm rebuild @tailwindcss/oxide && next build"
+    "prebuild": "node-gyp rebuild && npm install @tailwindcss/oxide-linux-x64-gnu"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.5",
@@ -20,7 +19,8 @@
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^15.6.1",
-    "recharts": "^2.15.1"
+    "recharts": "^2.15.1",
+    "sass": "^1.86.0"
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
