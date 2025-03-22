@@ -7,7 +7,7 @@
     "build": "npm rebuild @tailwindcss/oxide && next build",
     "start": "next start",
     "lint": "next lint",
-    "prebuild": "node-gyp rebuild && npm install @tailwindcss/oxide-linux-x64-gnu"
+    "prebuild": ""
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.5",
