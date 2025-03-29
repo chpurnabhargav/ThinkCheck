@@ -4,6 +4,7 @@ import HomePage from './Home';
 export default function Index() {
   return (
     <ClerkProvider>
+      <title>THINK CHECK</title>
       <HomePage />
     </ClerkProvider>
   );
