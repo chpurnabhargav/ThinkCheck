@@ -4,7 +4,6 @@ import { Lightbulb, GraduationCap, Target, ClipboardList, Map } from "lucide-rea
 import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram, FaGithub } from "react-icons/fa";
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-
 // Component definitions
 const ThinkCheckLogo = () => (
   <svg
@@ -657,10 +656,10 @@ const Home = () => {
             </p>
             
             <button 
-              onClick={isLoggedIn ? () => router.push("/dashboard") : handleLogin}
+              onClick={ () => scrollToTop() }
               className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl text-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center mx-auto"
             >
-              <span>{isLoggedIn ? "Go to Dashboard" : "Get Started Today"}</span>
+              <span>{"Go to Dashboard" }</span>
               <ArrowRight className="ml-2 w-6 h-6" />
             </button>
           </div>
@@ -668,82 +667,74 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className={`py-12 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div>
-              <div className="flex items-center space-x-2 mb-6">
-                <ThinkCheckLogo className="w-7 h-7 text-blue-500" />
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">ThinkCheck</span>
-              </div>
-              <p className={`mb-6 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Revolutionizing the way students test and consolidate their knowledge through innovative AI-powered assessment tools.
-              </p>
-              <div className="flex space-x-4">
-                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
-                  <FaTwitter className="w-5 h-5" />
-                </a>
-                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
-                  <FaFacebook className="w-5 h-5" />
-                </a>
-                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
-                  <FaLinkedin className="w-5 h-5" />
-                </a>
-                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
-                  <FaInstagram className="w-5 h-5" />
-                </a>
-                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
-                  <FaGithub className="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Features</h4>
-              <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">MCQ Tests</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Written Assessments</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Progress Tracking</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Performance Analytics</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Custom Study Plans</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Resources</h4>
-              <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Help Center</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Blog</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Tutorials</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">API Documentation</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Community Forums</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Company</h4>
-              <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">About Us</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Careers</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Contact</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}>
-              © {new Date().getFullYear()} ThinkCheck. All rights reserved.
-            </p>
-            <div className={`flex space-x-6 mt-4 md:mt-0 text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}>
-              <a href="#" className="hover:text-blue-500 transition-colors duration-300">Privacy Policy</a>
-              <a href="#" className="hover:text-blue-500 transition-colors duration-300">Terms of Service</a>
-              <a href="#" className="hover:text-blue-500 transition-colors duration-300">Cookie Policy</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <footer className={`py-12 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}> 
+  <div className="container mx-auto px-6"> 
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-12"> 
+      {/* Company Information and Logo */}
+      <div> 
+        <div className="flex items-center space-x-2 mb-6"> 
+          <ThinkCheckLogo className="w-7 h-7 text-blue-500" /> 
+          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">ThinkCheck</span> 
+        </div> 
+        <p className={`mb-6 ${darkMode ? "text-gray-400" : "text-gray-600"}`}> 
+          Revolutionizing the way students test and consolidate their knowledge through innovative AI-powered assessment tools. 
+        </p> 
+      </div> 
+       
+      {/* Features List */}
+      <div> 
+        <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Features</h4> 
+        <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}> 
+          <li><p className="hover:text-blue-500 transition-colors duration-300">MCQ Tests</p></li> 
+          <li><p className="hover:text-blue-500 transition-colors duration-300">Written Assessments</p></li> 
+          <li><p className="hover:text-blue-500 transition-colors duration-300">Progress Tracking</p></li> 
+        </ul> 
+      </div> 
+
+      {/* More Features */}
+      <div className="mt-0 md:mt-14">
+        <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}> 
+          <li><p className="hover:text-blue-500 transition-colors duration-300">Performance Analytics</p></li> 
+          <li><p className="hover:text-blue-500 transition-colors duration-300">Custom Study Plans</p></li> 
+        </ul> 
+      </div> 
+       
+      {/* Social Media Links */}
+      <div> 
+        <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Connect With Us</h4>
+        <div className="flex space-x-4"> 
+          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
+            <FaTwitter className="w-5 h-5" /> 
+          </a> 
+          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
+            <FaFacebook className="w-5 h-5" /> 
+          </a> 
+          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
+            <FaLinkedin className="w-5 h-5" /> 
+          </a> 
+          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
+            <FaInstagram className="w-5 h-5" /> 
+          </a> 
+          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
+            <FaGithub className="w-5 h-5" /> 
+          </a> 
+        </div> 
+      </div> 
+    </div> 
+     
+    {/* Copyright and Policies */}
+    <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center"> 
+      <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}> 
+        © {new Date().getFullYear()} ThinkCheck. All rights reserved. 
+      </p> 
+      <div className={`flex space-x-6 mt-4 md:mt-0 text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}> 
+        <a href="#" className="hover:text-blue-500 transition-colors duration-300">Privacy Policy</a> 
+        <a href="#" className="hover:text-blue-500 transition-colors duration-300">Terms of Service</a> 
+        <a href="#" className="hover:text-blue-500 transition-colors duration-300">Cookie Policy</a> 
+      </div> 
+    </div> 
+  </div> 
+</footer>
       
       {/* Back to top button */}
       <button 

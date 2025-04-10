@@ -80,7 +80,7 @@ const WrittenModePage = () => {
     setError(null);
     
     try {
-      const response = await fetch('https://thinkcheck.onrender.com/generate-written', {
+      const response = await fetch('http://localhost:5000/generate-written', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
