@@ -77,7 +77,8 @@ const Home = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const featureSectionRef = useRef(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Added to track login state
+  // User is always considered logged in - no login/logout functionality
+  const [isLoggedIn, setIsLoggedIn] = useState(true); 
 
   // Demo questions
   const demoQuestions = [
@@ -229,15 +230,7 @@ const Home = () => {
     setDarkMode(!darkMode);
   };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    showTempNotification('Successfully logged in!');
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    showTempNotification('Successfully logged out!');
-  };
+  // Removed handleLogin and handleLogout functions since they're no longer needed
 
   return (
     <div className={`flex flex-col min-h-screen transition-colors duration-500 ${darkMode ? 'bg-gradient-to-b from-gray-900 to-black text-white' : 'bg-gradient-to-b from-blue-50 to-purple-50 text-gray-900'}`}>
@@ -277,24 +270,8 @@ const Home = () => {
             >
               {darkMode ? '☀️' : '🌙'}
             </button>
-
-            {isLoggedIn ? (
-              <button 
-                onClick={handleLogout}
-                className="px-5 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center"
-              >
-                <span>Logout</span>
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </button>
-            ) : (
-              <button 
-                onClick={handleLogin}
-                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center"
-              >
-                <span>Login</span>
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </button>
-            )}
+            
+            {/* Removed the login/logout buttons */}
           </div>
         </div>
       </header>
