@@ -1,6 +1,5 @@
-// pages/Card.js
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'; // Importing the components
+import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 
 const CardPage = () => {
   return (
@@ -17,4 +16,4 @@ const CardPage = () => {
   );
 };
 
-export default CardPage;  // Ensure default export for Next.js page routing
+export default CardPage;

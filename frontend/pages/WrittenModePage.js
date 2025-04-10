@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { UserButton } from '@clerk/nextjs';
 import { ArrowLeft, Send, Check, AlertCircle, HelpCircle, Loader } from 'lucide-react';
 import { useRouter } from 'next/router';
 
@@ -223,7 +222,7 @@ const WrittenModePage = () => {
           >
             {darkMode ? '☀️' : '🌙'}
           </button>
-          <UserButton />
+          {/* UserButton from Clerk removed */}
         </div>
       </header>
 
