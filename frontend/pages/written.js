@@ -2,8 +2,6 @@ import WrittenModePage from "./WrittenModePage"; // Import from components folde
 import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 export default function WrittenPage() {
   return(
-<ClerkProvider>
-<WrittenModePage />;
-</ClerkProvider>
+<WrittenModePage />
   );
 }

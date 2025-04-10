@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { BookOpen, FileText, Brain, ArrowRight, Users, ChevronRight, Star, BarChart, Shield, Award, ChevronDown, Info, X, Check, AlertCircle } from 'lucide-react';
 import { Lightbulb, GraduationCap, Target, ClipboardList, Map } from "lucide-react";
 import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram, FaGithub } from "react-icons/fa";
@@ -79,6 +78,7 @@ const Home = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const featureSectionRef = useRef(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Added to track login state
 
   // Demo questions
   const demoQuestions = [
@@ -230,6 +230,16 @@ const Home = () => {
     setDarkMode(!darkMode);
   };
 
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    showTempNotification('Successfully logged in!');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    showTempNotification('Successfully logged out!');
+  };
+
   return (
     <div className={`flex flex-col min-h-screen transition-colors duration-500 ${darkMode ? 'bg-gradient-to-b from-gray-900 to-black text-white' : 'bg-gradient-to-b from-blue-50 to-purple-50 text-gray-900'}`}>
       {/* Notification */}
@@ -269,17 +279,23 @@ const Home = () => {
               {darkMode ? '☀️' : '🌙'}
             </button>
 
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center">
-                  <span>Sign In</span>
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </button>
-              </SignInButton>
-            </SignedOut>
+            {isLoggedIn ? (
+              <button 
+                onClick={handleLogout}
+                className="px-5 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center"
+              >
+                <span>Logout</span>
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            ) : (
+              <button 
+                onClick={handleLogin}
+                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center"
+              >
+                <span>Login</span>
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -309,14 +325,15 @@ const Home = () => {
               </p>
               
               <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center">
-                <SignedOut>
+                {!isLoggedIn ? (
                   <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                    <SignInButton mode="modal">
-                      <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md shadow-blue-500/20">
-                        <span className="text-lg font-medium">Login to Start</span>
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </button>
-                    </SignInButton>
+                    <button 
+                      onClick={handleLogin}
+                      className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md shadow-blue-500/20"
+                    >
+                      <span className="text-lg font-medium">Login to Start</span>
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </button>
                     <button 
                       onClick={() => setShowDemo(true)}
                       className="px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md"
@@ -325,8 +342,7 @@ const Home = () => {
                       <ChevronRight className="ml-2 w-5 h-5" />
                     </button>
                   </div>
-                </SignedOut>
-                <SignedIn>
+                ) : (
                   <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                     <button
                       onClick={() => router.push("/mcq")}
@@ -364,7 +380,7 @@ const Home = () => {
                       <span className="text-lg font-medium">Notes</span>
                     </button>
                   </div>
-                </SignedIn>
+                )}
               </div>
               <div className="flex items-center justify-center mt-8">
                 <div className={`flex items-center space-x-1 text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
@@ -554,10 +570,8 @@ const Home = () => {
                         <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="ml-4 text-left">
-                        <h4 className="font-semibold text-lg">{testimonial.name}</h4>
-                        <p className={`text-sm ${darkMode ? "text-blue-300" : "text-blue-600"}`}>
-                          {testimonial.role}
-                        </p>
+                      <h4 className="font-bold">{testimonial.name}</h4>
+                        <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{testimonial.role}</p>
                       </div>
                     </div>
                   </div>
@@ -565,96 +579,190 @@ const Home = () => {
               ))}
             </div>
             
-            <div className="flex items-center justify-center mt-12">
+            <div className="flex justify-center mt-4">
               {testimonials.map((_, index) => (
                 <button 
-                  key={index}
+                  key={index} 
                   onClick={() => setTestimonialIndex(index)}
-                  className={`w-3 h-3 rounded-full mx-2 transition-all duration-300 ${
+                  className={`w-3 h-3 mx-1 rounded-full transition-all duration-300 ${
                     testimonialIndex === index 
-                      ? 'bg-blue-500 w-6' 
-                      : 'bg-gray-400 bg-opacity-30'
+                      ? 'bg-blue-500 scale-125' 
+                      : (darkMode ? 'bg-gray-600' : 'bg-gray-300')
                   }`}
-                ></button>  
+                  aria-label={`View testimonial ${index + 1}`}
+                />
               ))}
             </div>
           </div>
         </div>
       </section>
 
-{/* CTA section */}
-<section className="py-24 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-  <div className="container mx-auto px-6">
-    <div className="max-w-4xl mx-auto text-center">
-      <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">Ready to boost your knowledge?</h2>
-      <p className="text-xl text-blue-100 mb-10">
-        Join thousands of students and professionals who have transformed their learning experience with ThinkCheck
-      </p>
-      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 justify-center">
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="px-8 py-4 bg-white text-purple-600 hover:bg-gray-100 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 shadow-xl font-semibold text-lg">
-              Get Started Now
-              <ArrowRight className="ml-2 w-5 h-5" />
+      {/* How it works section */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">How ThinkCheck Works</h2>
+            <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Our platform is designed to make learning assessment seamless and effective
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className={`p-8 rounded-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-xl`}>
+              <div className="flex justify-center mb-6">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${darkMode ? 'bg-blue-900' : 'bg-blue-100'}`}>
+                  <GraduationCap className="w-8 h-8 text-blue-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-center">Select Your Subject</h3>
+              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-center`}>
+                Choose from a wide range of subjects and topics tailored to your curriculum or learning objectives
+              </p>
+            </div>
+            
+            <div className={`p-8 rounded-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-xl`}>
+              <div className="flex justify-center mb-6">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${darkMode ? 'bg-purple-900' : 'bg-purple-100'}`}>
+                  <ClipboardList className="w-8 h-8 text-purple-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-center">Take Assessments</h3>
+              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-center`}>
+                Complete interactive quizzes and tests with multiple formats including MCQs and written responses
+              </p>
+            </div>
+            
+            <div className={`p-8 rounded-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-xl`}>
+              <div className="flex justify-center mb-6">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${darkMode ? 'bg-green-900' : 'bg-green-100'}`}>
+                  <Target className="w-8 h-8 text-green-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-center">Track Progress</h3>
+              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-center`}>
+                Receive instant feedback, detailed explanations, and view your progress over time with visual analytics
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA section */}
+      <section className={`py-20 ${darkMode ? 'bg-gradient-to-r from-indigo-900 to-purple-900' : 'bg-gradient-to-r from-indigo-50 to-purple-50'}`}>
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Ready to Transform Your Learning Experience?</h2>
+            <p className={`text-xl mb-10 ${darkMode ? "text-blue-200" : "text-gray-700"}`}>
+              Join thousands of students and professionals who have boosted their knowledge retention and test performance with ThinkCheck
+            </p>
+            
+            <button 
+              onClick={isLoggedIn ? () => router.push("/dashboard") : handleLogin}
+              className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl text-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center mx-auto"
+            >
+              <span>{isLoggedIn ? "Go to Dashboard" : "Get Started Today"}</span>
+              <ArrowRight className="ml-2 w-6 h-6" />
             </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
-          <button 
-            onClick={scrollToTop} 
-            className="px-8 py-4 bg-white text-purple-600 hover:bg-gray-100 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 shadow-xl font-semibold text-lg"
-          >
-            Go to Dashboard
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </button>
-        </SignedIn>
-        <button 
-         onClick={() => router.push("/LearnMore")}  
-          className="px-8 py-4 border-2 border-white text-white hover:bg-white hover:bg-opacity-10 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold text-lg"
-        >
-          
-          Learn More
-          <ChevronRight className="ml-2 w-5 h-5" />
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
-
-{/* Footer */}
-<footer className={`py-12 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-  <div className="container mx-auto px-6">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 justify-items-center">
-      <div className="mb-6 text-center md:text-left">
-        <div className="flex items-center justify-center md:justify-start space-x-2 mb-4">
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-            ThinkCheck
-          </span>
+          </div>
         </div>
-        <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-4`}>
-          Revolutionizing educational assessment with AI-powered learning tools.
-        </p>
-        <div className="flex justify-center md:justify-start space-x-4">
+      </section>
+
+      {/* Footer */}
+      <footer className={`py-12 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div>
+              <div className="flex items-center space-x-2 mb-6">
+                <ThinkCheckLogo className="w-7 h-7 text-blue-500" />
+                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">ThinkCheck</span>
+              </div>
+              <p className={`mb-6 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                Revolutionizing the way students test and consolidate their knowledge through innovative AI-powered assessment tools.
+              </p>
+              <div className="flex space-x-4">
+                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
+                  <FaTwitter className="w-5 h-5" />
+                </a>
+                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
+                  <FaFacebook className="w-5 h-5" />
+                </a>
+                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
+                  <FaLinkedin className="w-5 h-5" />
+                </a>
+                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
+                  <FaInstagram className="w-5 h-5" />
+                </a>
+                <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}>
+                  <FaGithub className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Features</h4>
+              <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">MCQ Tests</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Written Assessments</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Progress Tracking</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Performance Analytics</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Custom Study Plans</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Resources</h4>
+              <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Help Center</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Blog</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Tutorials</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">API Documentation</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Community Forums</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Company</h4>
+              <ul className={`space-y-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">About Us</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Careers</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Contact</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-blue-500 transition-colors duration-300">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
           
-          <a href="https://github.com/chpurnabhargav/" className={`${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>
-            <FaGithub className="w-9 h-9" />
-          </a>
+          <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}>
+              © {new Date().getFullYear()} ThinkCheck. All rights reserved.
+            </p>
+            <div className={`flex space-x-6 mt-4 md:mt-0 text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}>
+              <a href="#" className="hover:text-blue-500 transition-colors duration-300">Privacy Policy</a>
+              <a href="#" className="hover:text-blue-500 transition-colors duration-300">Terms of Service</a>
+              <a href="#" className="hover:text-blue-500 transition-colors duration-300">Cookie Policy</a>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-      <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm text-center md:text-left`}>
-        © {new Date().getFullYear()} ThinkCheck. All rights reserved.
-      </p>
-      <div className="flex justify-center md:justify-start space-x-6 mt-4 md:mt-0">
-        <a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>Privacy Policy</a>
-        <a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-blue-600'}`}>Terms of Service</a> 
-      </div>
-    </div>
-  </div>
-</footer>
-
+      </footer>
+      
+      {/* Back to top button */}
+      <button 
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 z-20 ${
+          scrolled 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10 pointer-events-none'
+        } ${
+          darkMode 
+            ? 'bg-gray-800 hover:bg-gray-700 text-white' 
+            : 'bg-white hover:bg-gray-100 text-gray-800'
+        }`}
+        aria-label="Back to top"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
     </div>
   );
 };
