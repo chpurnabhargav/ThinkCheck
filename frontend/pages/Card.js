@@ -1,46 +1,20 @@
-// components/ui/card.js
+// pages/Card.js
 import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'; // Importing the components
 
-export function Card({ className, children, ...props }) {
+const CardPage = () => {
   return (
-    <div 
-      className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className || ''}`} 
-      {...props}
-    >
-      {children}
+    <div className="container">
+      <Card className="my-4">
+        <CardHeader>
+          <CardTitle>This is a card title</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>This is the content inside the card. You can add more details here.</p>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
 
-export function CardHeader({ className, children, ...props }) {
-  return (
-    <div 
-      className={`flex flex-col space-y-1.5 p-6 ${className || ''}`} 
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-export function CardTitle({ className, children, ...props }) {
-  return (
-    <h3 
-      className={`text-2xl font-semibold leading-none tracking-tight ${className || ''}`} 
-      {...props}
-    >
-      {children}
-    </h3>
-  );
-}
-
-export function CardContent({ className, children, ...props }) {
-  return (
-    <div 
-      className={`p-6 pt-0 ${className || ''}`} 
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
+export default CardPage;  // Ensure default export for Next.js page routing
