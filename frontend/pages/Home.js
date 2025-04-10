@@ -128,9 +128,9 @@ const Home = () => {
     },
     {
       text: "ThinkCheck is a game-changer! The structured practice tests and analytics helped me track my weak areas and ace my semester exams.",
-      name: "Varshitha",
-      role: "Electronics and Communication Engineering Student",
-      image: "/varshitha.jpg"
+      name: "Nishanth",
+      role: "Cyber Security Aspriant",
+      image: "/nishanth.jpg"
     }
   ];
   
