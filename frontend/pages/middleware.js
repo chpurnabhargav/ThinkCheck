@@ -1,11 +1,28 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+// middleware.js
+import { authMiddleware } from "@clerk/nextjs";
 
-export default clerkMiddleware();
+export default authMiddleware({
+  // These routes will be protected — Clerk will enforce authentication here
+  protectedRoutes: [
+    "/mcq",
+    "/written",
+    "/api",
+    "/STS",
+    "/Suggestion",
+    "/Notes",
+  ],
+  // Optionally define routes that don't need auth here (like home, about, etc.)
+  publicRoutes: ["/"],
+});
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
+    /*
+     * Match all routes except:
+     * - _next (Next.js internals)
+     * - static files (like .js, .css, .png, etc.)
+     * - favicon
+     */
+    "/((?!_next|.*\\..*|favicon.ico).*)",
   ],
 };
