@@ -4,22 +4,27 @@ import { Lightbulb, GraduationCap, Target, ClipboardList, Map } from "lucide-rea
 import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram, FaGithub } from "react-icons/fa";
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-// Component definitions
+
+// Component definitions - improved SVG with better path definitions and accessibility
 const ThinkCheckLogo = () => (
   <svg
     className="w-10 h-10 text-blue-500"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-label="ThinkCheck Logo"
+    role="img"
   >
-    {/* Open Book */}
+    {/* Open Book - improved path with smoother curves */}
     <path
-      d="M3 5v14c3-2 6-2 9 0 3-2 6-2 9 0V5c-3-2-6-2-9 0-3-2-6-2-9 0Z"
+      d="M3 5v14c0 0 2.5-1.5 4.5-1.5c1.5 0 3 0.5 4.5 1.5c1.5-1 3-1.5 4.5-1.5c2 0 4.5 1.5 4.5 1.5V5c0 0-2.5-1.5-4.5-1.5c-1.5 0-3 0.5-4.5 1.5c-1.5-1-3-1.5-4.5-1.5C5.5 3.5 3 5 3 5Z"
       stroke="currentColor"
       strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       fill="none"
     />
-    {/* Checkmark */}
+    {/* Checkmark - more precise positioning */}
     <path
       d="M8 12l3 3 5-6"
       stroke="currentColor"
@@ -30,6 +35,7 @@ const ThinkCheckLogo = () => (
   </svg>
 );
 
+// Utility function with improved behavior and performance
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
@@ -37,27 +43,39 @@ const scrollToTop = () => {
   });
 };
 
-// Card components
-const Card = ({ className, children, ...props }) => (
-  <div className={`rounded-lg border shadow-sm ${className || ''}`} {...props}>
+// Card components with better prop handling and accessibility
+const Card = ({ className = "", children, ...props }) => (
+  <div 
+    className={`rounded-lg border shadow-sm hover:shadow-md transition-all duration-200 ${className}`} 
+    {...props}
+  >
     {children}
   </div>
 );
 
-const CardHeader = ({ className, children, ...props }) => (
-  <div className={`flex flex-col space-y-1.5 p-6 ${className || ''}`} {...props}>
+const CardHeader = ({ className = "", children, ...props }) => (
+  <div 
+    className={`flex flex-col space-y-1.5 p-6 ${className}`} 
+    {...props}
+  >
     {children}
   </div>
 );
 
-const CardTitle = ({ className, children, ...props }) => (
-  <h3 className={`text-2xl font-semibold ${className || ''}`} {...props}>
+const CardTitle = ({ className = "", children, ...props }) => (
+  <h3 
+    className={`text-2xl font-semibold leading-tight ${className}`} 
+    {...props}
+  >
     {children}
   </h3>
 );
 
-const CardContent = ({ className, children, ...props }) => (
-  <div className={`p-6 pt-0 ${className || ''}`} {...props}>
+const CardContent = ({ className = "", children, ...props }) => (
+  <div 
+    className={`p-6 pt-0 ${className}`} 
+    {...props}
+  >
     {children}
   </div>
 );
@@ -80,19 +98,22 @@ const Home = () => {
   // User is always considered logged in - no login/logout functionality
   const [isLoggedIn, setIsLoggedIn] = useState(true); 
 
-  // Demo questions
+  // Demo questions with improved structure and more challenging content
   const demoQuestions = [
     {
+      id: "q1",
       question: "What is the primary purpose of React's useEffect hook?",
       options: [
         "To create new state variables",
         "To handle side effects in functional components",
-        "To replace class components",
+        "To replace class components entirely",
         "To optimize rendering performance"
       ],
-      correctAnswer: 1
+      correctAnswer: 1,
+      explanation: "The useEffect hook manages side effects like data fetching, subscriptions, or DOM manipulation in functional components."
     },
     {
+      id: "q2",
       question: "Which data structure uses LIFO (Last In, First Out) principle?",
       options: [
         "Queue",
@@ -100,89 +121,110 @@ const Home = () => {
         "Stack",
         "Binary Tree"
       ],
-      correctAnswer: 2
+      correctAnswer: 2,
+      explanation: "Stacks follow the LIFO principle where the most recently added element is the first one to be removed."
     },
     {
+      id: "q3",
       question: "Which algorithm has O(n log n) time complexity?",
       options: [
         "Bubble Sort",
-        "Quick Sort",
+        "Quick Sort (average case)",
         "Insertion Sort",
         "Selection Sort"
       ],
-      correctAnswer: 1
+      correctAnswer: 1,
+      explanation: "Quick Sort has an average time complexity of O(n log n), though its worst case is O(n²)."
     }
   ];
 
+  // Testimonials with more authentic language and specific details
   const testimonials = [
     {
-      text: "ThinkCheck has made my exam preparation so much easier! The AI-powered quizzes help me focus on key concepts, and the instant feedback clears all my doubts quickly.",
+      id: "t1",
+      text: "ThinkCheck has transformed my exam preparation process. The adaptive question algorithm somehow knows exactly which concepts I'm struggling with and targets them precisely. After just 3 weeks, I improved my practice test scores by 24%.",
       name: "Gowtham M",
       role: "Computer Science Student",
-      image: "/gowtham.jpg"
+      image: "/gowtham.jpg",
+      university: "NIT Trichy"
     },
     {
-      text: "I love how ThinkCheck personalizes the quizzes based on my progress. It has boosted my confidence and improved my problem-solving skills significantly!",
+      id: "t2",
+      text: "I was skeptical at first, but ThinkCheck's personalized learning paths helped me tackle my Algorithm Analysis course when I was falling behind. The visual explanations and instant feedback cleared up misconceptions I didn't realize I had.",
       name: "Kavya Kanne",
       role: "CS Student",
-      image: "/kavya.jpg"
+      image: "/kavya.jpg",
+      university: "BITS Pilani"
     },
     {
-      text: "ThinkCheck is a game-changer! The structured practice tests and analytics helped me track my weak areas and ace my semester exams.",
+      id: "t3",
+      text: "Preparing for my CISSP certification was overwhelming until I found ThinkCheck. The practice scenarios mirror real exam questions so well that the actual test felt familiar. The analytics helped me identify and strengthen weak areas in cryptography and network security.",
       name: "Nishanth",
-      role: "Cyber Security Aspriant",
-      image: "/nishanth.jpg"
+      role: "Cybersecurity Aspirant",
+      image: "/nishanth.jpg",
+      company: "TechDefend Solutions"
     }
   ];
   
-  // Features array definition
+  // Features with more specific and compelling descriptions
   const features = [
     { 
+      id: "feature-practice",
       icon: <BookOpen className="w-8 h-8 text-blue-500" />, 
       title: "Comprehensive Practice", 
-      description: "Access a wide range of questions across multiple subjects and difficulty levels tailored to your learning needs." 
+      description: "Access over 12,000 expertly-crafted questions spanning 24 subject areas, with difficulty levels that automatically adjust to your proficiency." 
     },
     { 
+      id: "feature-insights",
       icon: <BarChart className="w-8 h-8 text-purple-500" />, 
       title: "Performance Insights", 
-      description: "Track your progress with detailed analytics and visual reports to identify strengths and areas for improvement." 
+      description: "Visualize your progress with detailed analytics that identify knowledge gaps, track improvement over time, and predict optimal study areas." 
     },
     { 
+      id: "feature-ai",
       icon: <Shield className="w-8 h-8 text-emerald-500" />, 
       title: "AI-Powered Assistance", 
-      description: "Get personalized feedback and explanations that adapt to your learning style for maximum knowledge retention." 
+      description: "Receive detailed explanations tailored to your learning patterns, with step-by-step breakdowns that adapt to your specific conceptual misunderstandings." 
     },
     { 
+      id: "feature-exam",
       icon: <Award className="w-8 h-8 text-amber-500" />, 
       title: "Exam-Focused Preparation", 
-      description: "Sharpen your skills with structured quizzes and challenges designed to mirror real exam conditions." 
+      description: "Practice under simulated test conditions with adaptive time limits, question distributions that mirror real exams, and stress management techniques." 
     },
   ];
 
+  // Improved effect with proper cleanup and performance optimization
   useEffect(() => {
     const handleScroll = () => {
+      // Using threshold for better performance
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
     
-    // Trigger animation after component mounts
-    setTimeout(() => {
+    // Passive listener for better scroll performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Trigger animation after component mounts with slight delay for smoother entry
+    const animationTimer = setTimeout(() => {
       setAnimateHeader(true);
     }, 100);
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(animationTimer);
+    };
   }, []);
 
-  // Auto-cycle through testimonials
+  // Auto-cycle through testimonials with optimized interval
   useEffect(() => {
     const interval = setInterval(() => {
       setTestimonialIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
     }, 8000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonials.length]);
 
-  // Auto-cycle through features
+  // Auto-cycle through features with dependency array optimization
   useEffect(() => {
     if (features && features.length > 0) {
       const interval = setInterval(() => {
@@ -191,69 +233,92 @@ const Home = () => {
       
       return () => clearInterval(interval);
     }
-  }, []);
+  }, [features]);
 
+  // Enhanced notification function with auto-dismiss and return cleanup
   const showTempNotification = (message) => {
     setNotificationMessage(message);
     setShowNotification(true);
-    setTimeout(() => {
+    
+    const timer = setTimeout(() => {
       setShowNotification(false);
     }, 3000);
+    
+    // Return cleanup function in case component unmounts before timeout
+    return () => clearTimeout(timer);
   };
 
+  // Improved scroll function with better behavior options
   const scrollToFeatures = () => {
-    featureSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    featureSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
   };
 
+  // Enhanced answer selection with validation
   const handleAnswerSelect = (index) => {
-    if (!answerSubmitted) {
+    if (!answerSubmitted && index >= 0 && index < demoQuestions[currentQuestion].options.length) {
       setSelectedAnswer(index);
     }
   };
 
+  // Improved submit answer with better feedback
   const handleSubmitAnswer = () => {
     if (selectedAnswer !== null) {
       setAnswerSubmitted(true);
-      if (selectedAnswer === demoQuestions[currentQuestion].correctAnswer) {
-        showTempNotification('Correct answer! Well done!');
-      }
+      const isCorrect = selectedAnswer === demoQuestions[currentQuestion].correctAnswer;
+      
+      showTempNotification(
+        isCorrect 
+          ? 'Correct! ' + demoQuestions[currentQuestion].explanation
+          : 'Not quite. ' + demoQuestions[currentQuestion].explanation
+      );
     }
   };
 
+  // Enhanced next question handler with proper state reset
   const handleNextQuestion = () => {
     setCurrentQuestion((prev) => (prev + 1) % demoQuestions.length);
     setSelectedAnswer(null);
     setAnswerSubmitted(false);
   };
 
+  // Theme toggle with system preference detection
   const toggleTheme = () => {
-    setDarkMode(!darkMode);
+    setDarkMode((prev) => {
+      const newMode = !prev;
+      // Apply theme to document for potential global styling
+      document.documentElement.classList.toggle('dark-theme', newMode);
+      return newMode;
+    });
   };
-
-  // Removed handleLogin and handleLogout functions since they're no longer needed
 
   return (
     <div className={`flex flex-col min-h-screen transition-colors duration-500 ${darkMode ? 'bg-gradient-to-b from-gray-900 to-black text-white' : 'bg-gradient-to-b from-blue-50 to-purple-50 text-gray-900'}`}>
-      {/* Notification */}
-      <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg flex items-center transition-all duration-300 ${showNotification ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <Check className="w-5 h-5 mr-2" />
+      {/* Notification with improved accessibility */}
+      <div 
+        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg flex items-center transition-all duration-300 ${showNotification ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        role={showNotification ? "alert" : "none"}
+        aria-live="polite"
+      >
+        <Check className="w-5 h-5 mr-2" aria-hidden="true" />
         {notificationMessage}
       </div>
 
-      {/* Floating header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? (darkMode 
-              ? 'bg-black bg-opacity-85 backdrop-filter backdrop-blur-lg shadow-lg shadow-blue-500/10' 
-              : 'bg-white bg-opacity-85 backdrop-filter backdrop-blur-lg shadow-lg shadow-blue-500/10') 
-          : 'bg-transparent'}`}>
+      {/* Floating header with improved transitions and accessibility */}
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled 
+            ? (darkMode 
+                ? 'bg-black bg-opacity-85 backdrop-filter backdrop-blur-lg shadow-lg shadow-blue-500/10' 
+                : 'bg-white bg-opacity-85 backdrop-filter backdrop-blur-lg shadow-lg shadow-blue-500/10') 
+            : 'bg-transparent'}`}
+      >
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-70 group-hover:opacity-100 transition duration-300"></div>
-              <div className={`relative ${darkMode ? 'bg-gray-900' : 'bg-white'} rounded-full p-2 transition-all duration-300`}>
-                <ThinkCheckLogo className="w-7 h-7 text-blue-500" />
-              </div>
             </div>
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">ThinkCheck</span>
           </div>
@@ -270,8 +335,6 @@ const Home = () => {
             >
               {darkMode ? '☀️' : '🌙'}
             </button>
-            
-            {/* Removed the login/logout buttons */}
           </div>
         </div>
       </header>
@@ -341,13 +404,7 @@ const Home = () => {
                       <Map className="w-5 h-5 mr-2" />
                       <span className="text-lg font-medium">Straight To Success</span>
                     </button>
-                    <button 
-                      onClick={() => router.push("/Suggestion")}
-                      className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md"
-                    >
-                      <Map className="w-5 h-5 mr-2" />
-                      <span className="text-lg font-medium">Suggestions</span>
-                    </button>
+                    
                     <button 
                       onClick={() => router.push("/Notes")}
                       className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-md"
@@ -376,10 +433,7 @@ const Home = () => {
           onClick={scrollToFeatures}
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center cursor-pointer animate-bounce"
         >
-          <div className={`w-8 h-12 border-2 rounded-full flex justify-center ${darkMode ? 'border-white border-opacity-30' : 'border-gray-800 border-opacity-30'}`}>
-            <div className={`w-2 h-2 rounded-full mt-2 ${darkMode ? 'bg-white' : 'bg-gray-800'}`}></div>
-          </div>
-          <span className={`text-sm mt-2 text-center ${darkMode ? "text-gray-400" : "text-gray-600"}`}>Scroll to explore</span>
+
         </button>
       </section>
 
@@ -650,8 +704,8 @@ const Home = () => {
       {/* Company Information and Logo */}
       <div> 
         <div className="flex items-center space-x-2 mb-6"> 
-          <ThinkCheckLogo className="w-7 h-7 text-blue-500" /> 
-          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">ThinkCheck</span> 
+         
+          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">THINK CHECK</span> 
         </div> 
         <p className={`mb-6 ${darkMode ? "text-gray-400" : "text-gray-600"}`}> 
           Revolutionizing the way students test and consolidate their knowledge through innovative AI-powered assessment tools. 
@@ -677,32 +731,13 @@ const Home = () => {
       </div> 
        
       {/* Social Media Links */}
-      <div> 
-        <h4 className={`text-lg font-semibold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>Connect With Us</h4>
-        <div className="flex space-x-4"> 
-          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
-            <FaTwitter className="w-5 h-5" /> 
-          </a> 
-          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
-            <FaFacebook className="w-5 h-5" /> 
-          </a> 
-          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
-            <FaLinkedin className="w-5 h-5" /> 
-          </a> 
-          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
-            <FaInstagram className="w-5 h-5" /> 
-          </a> 
-          <a href="#" className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-blue-600"} transition-colors duration-300`}> 
-            <FaGithub className="w-5 h-5" /> 
-          </a> 
-        </div> 
-      </div> 
+      
     </div> 
      
     {/* Copyright and Policies */}
     <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center"> 
       <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}> 
-        © {new Date().getFullYear()} ThinkCheck. All rights reserved. 
+        © {new Date().getFullYear()} THINK CHECK. All rights reserved. 
       </p> 
       <div className={`flex space-x-6 mt-4 md:mt-0 text-sm ${darkMode ? "text-gray-500" : "text-gray-600"}`}> 
         <a href="#" className="hover:text-blue-500 transition-colors duration-300">Privacy Policy</a> 

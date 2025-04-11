@@ -18,60 +18,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to the MCQ Generator API. Use the /generate-mcq, /generate-written, /evaluate-answers, or /generate-roadmap endpoints to interact with the service.');
 });
 
-app.post('/suggestion', async (req, res) => {
-  try {
-    // Extract student responses from request body
-    const { responses } = req.body;
-    
-    if (!responses || !Array.isArray(responses) || responses.length < 10) {
-      return res.status(400).json({ error: 'Please provide at least 10 question responses' });
-    }
 
-    // Format the prompt for Gemini API
-    const prompt = formatPromptFromResponses(responses);
-    
-    // Call Gemini API with timeout
-    const geminiResponse = await api.post(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ],
-        // Add generation config for more control
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 2048
-        }
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`
-        }
-      }
-    );
-
-    // Process and return the educational suggestions
-    const suggestions = processSuggestions(geminiResponse.data);
-    
-    res.json({
-      success: true,
-      suggestions
-    });
-  } catch (error) {
-    console.error('Error generating educational suggestions:', error.message);
-    res.status(error.response?.status || 500).json({ 
-      error: 'Failed to generate educational suggestions',
-      details: error.message
-    });
-  }
-});
 
 // Helper function to format the prompt from student responses
 function formatPromptFromResponses(responses) {
