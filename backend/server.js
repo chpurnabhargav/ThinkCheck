@@ -14,12 +14,91 @@ const api = axios.create({
   timeout: 30000 // 30 second timeout for all requests
 });
 
+// GROK API Configuration
+// Since we only have the API key, we'll use a default URL that can be updated later
+const GROK_API_URL = process.env.GROK_API_URL || 'https://api.grok.com/v1'; // You'll need to update this
+const GROK_API_KEY = process.env.GROK_API_KEY;
+
 app.get('/', (req, res) => {
   res.send('Welcome to the MCQ Generator API. Use the /generate-mcq, /generate-written, /evaluate-answers, or /generate-roadmap endpoints to interact with the service.');
-  res.send("Active API Key:", process.env.GEMINI_API_KEY);
 });
 
+// Helper function to make requests to the Grok API
+async function callGrokAPI(prompt, options = {}) {
+  if (!GROK_API_KEY) {
+    throw new Error("Missing GROK_API_KEY in environment variables");
+  }
 
+  const defaultOptions = {
+    temperature: 0.2,
+    maxTokens: 2048
+  };
+
+  const requestOptions = { ...defaultOptions, ...options };
+
+  try {
+    console.log(`Calling Grok API with prompt: ${prompt.substring(0, 50)}...`);
+    
+    // This is a flexible implementation that can be adjusted based on Grok's actual API
+    const response = await api.post(
+      `${GROK_API_URL}/chat/completions`, // Common endpoint pattern for chat models
+      {
+        // Most common fields for AI chat APIs - adjust based on Grok's documentation
+        messages: [
+          { role: "system", content: "You are a helpful educational content generator." },
+          { role: "user", content: prompt }
+        ],
+        model: process.env.GROK_MODEL || "grok-1", // Update with correct model name
+        temperature: requestOptions.temperature,
+        max_tokens: requestOptions.maxTokens
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${GROK_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    // Log response structure to help debugging
+    console.log("API response structure:", JSON.stringify(Object.keys(response.data), null, 2));
+    
+    // Try multiple common response formats used by AI APIs
+    let responseText;
+    
+    // Format 1: OpenAI-like format
+    if (response.data.choices && response.data.choices[0]) {
+      responseText = response.data.choices[0].message?.content || 
+                    response.data.choices[0].text || 
+                    "";
+    } 
+    // Format 2: Direct content format
+    else if (response.data.content) {
+      responseText = response.data.content;
+    }
+    // Format 3: Simple text format
+    else if (response.data.text) {
+      responseText = response.data.text;
+    }
+    // Fallback: try to get any text
+    else {
+      console.warn("Unexpected API response format:", response.data);
+      // Attempt to extract text from any available field
+      responseText = response.data.output || 
+                     response.data.result || 
+                     response.data.generated_text ||
+                     JSON.stringify(response.data);
+    }
+    
+    return responseText;
+  } catch (error) {
+    console.error("Error calling Grok API:", error.message);
+    if (error.response) {
+      console.error("Error details:", error.response.data);
+    }
+    throw error;
+  }
+}
 
 // Helper function to format the prompt from student responses
 function formatPromptFromResponses(responses) {
@@ -42,14 +121,11 @@ Please provide:
 `;
 }
 
-// Helper function to process and structure the suggestions from Gemini
-function processSuggestions(geminiData) {
+// Helper function to process and structure the suggestions
+function processSuggestions(responseText) {
   try {
-    // Extract the text response from Gemini
-    const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-    
     if (!responseText) {
-      throw new Error("Empty response from Gemini API");
+      throw new Error("Empty response from Grok API");
     }
     
     // For now, return the raw response - in production you might parse it into a more structured format
@@ -73,19 +149,8 @@ app.post('/generate-mcq', async (req, res) => {
   // Limit number of questions to prevent large requests
   const limitedQuestions = Math.min(parseInt(numQuestions) || 5, 10);
   
-  if (!process.env.GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment variables" });
-  }
-  
   try {
-    const response = await api.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Generate ${limitedQuestions} multiple-choice questions on the topic: ${topic}.
+    const prompt = `Generate ${limitedQuestions} multiple-choice questions on the topic: ${topic}.
 
 For questions involving code:
 1. Include relevant code snippets where applicable
@@ -113,28 +178,16 @@ d) Error
 
 Correct Answer: b)
 
-Explanation: In JavaScript, when you add a number and a string, the number is converted to a string and then concatenation occurs.`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 2048
-        }
-      },
-      {
-        params: { key: process.env.GEMINI_API_KEY },
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-    
-    // Extract text from response
-    const mcqText = response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+Explanation: In JavaScript, when you add a number and a string, the number is converted to a string and then concatenation occurs.`;
+
+    const mcqText = await callGrokAPI(prompt, {
+      temperature: 0.2,
+      maxTokens: 2048
+    });
     
     if (!mcqText) {
       console.error("MCQ text is empty or undefined!");
-      return res.status(500).json({ error: "Empty MCQ response from Gemini API" });
+      return res.status(500).json({ error: "Empty MCQ response from Grok API" });
     }
     
     // Convert formatted text into structured JSON
@@ -226,19 +279,8 @@ app.post('/generate-written', async (req, res) => {
   // Limit number of questions to prevent large requests
   const limitedQuestions = Math.min(parseInt(numQuestions) || 3, 5);
   
-  if (!process.env.GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment variables" });
-  }
-  
   try {
-    const response = await api.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Generate ${limitedQuestions} open-ended written questions on the topic: ${topic}.
+    const prompt = `Generate ${limitedQuestions} open-ended written questions on the topic: ${topic}.
                 
 Topic details: ${topic}
 Difficulty level: ${difficulty || 'medium'}
@@ -255,28 +297,16 @@ For each question:
 Example format:
 1. Explain the concept of closure in JavaScript and provide an example of how it can be used to create private variables. How does this pattern help with encapsulation in application development?
 
-2. Compare and contrast REST and GraphQL APIs. What are the advantages and disadvantages of each approach, and in what scenarios would you choose one over the other?`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 1024
-        }
-      },
-      {
-        params: { key: process.env.GEMINI_API_KEY },
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-    
-    // Extract text from response
-    const questionsText = response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+2. Compare and contrast REST and GraphQL APIs. What are the advantages and disadvantages of each approach, and in what scenarios would you choose one over the other?`;
+
+    const questionsText = await callGrokAPI(prompt, {
+      temperature: 0.2,
+      maxTokens: 1024
+    });
     
     if (!questionsText) {
       console.error("Questions text is empty or undefined!");
-      return res.status(500).json({ error: "Empty response from Gemini API" });
+      return res.status(500).json({ error: "Empty response from Grok API" });
     }
     
     // Convert formatted text into structured JSON
@@ -331,10 +361,6 @@ app.post("/evaluate-answers", async (req, res) => {
   // Input validation
   if (!questions || !answers || questions.length !== answers.length) {
     return res.status(400).json({ error: "Invalid request data" });
-  }
-  
-  if (!process.env.GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment variables" });
   }
 
   // Limit the number of evaluations
@@ -414,30 +440,10 @@ Answer: "${answer}"
 
 Return only JSON: {"score": [0-100], "comments": "feedback", "suggestions": ["suggestion1", "suggestion2"]}`;
 
-    const response = await api.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: promptText
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 512
-        }
-      },
-      {
-        params: { key: process.env.GEMINI_API_KEY },
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-    
-    const responseText = response?.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    const responseText = await callGrokAPI(promptText, {
+      temperature: 0.1,
+      maxTokens: 512
+    });
     
     if (!responseText) {
       throw new Error("Empty response from API");
@@ -480,31 +486,12 @@ app.post('/generate-roadmap', async (req, res) => {
   }
 
   try {
-    // Make a request to the Gemini API with timeout
-    const response = await api.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Generate a learning roadmap for the topic: ${topic} with a timeframe of ${timeframe} ${level ? `for ${level} level learners` : ''}.`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 2048
-        }
-      },
-      {
-        params: { key: process.env.GEMINI_API_KEY },
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    const prompt = `Generate a learning roadmap for the topic: ${topic} with a timeframe of ${timeframe} ${level ? `for ${level} level learners` : ''}.`;
 
-    const roadmapText = response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    const roadmapText = await callGrokAPI(prompt, {
+      temperature: 0.2,
+      maxTokens: 2048
+    });
     
     if (!roadmapText) {
       return res.status(500).json({ 
@@ -537,19 +524,8 @@ app.post('/notes', async (req, res) => {
     return res.status(400).json({ error: "Missing subject parameter" });
   }
   
-  if (!process.env.GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment variables" });
-  }
-  
   try {
-    const response = await api.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Generate concise study notes on: ${subject}.
+    const prompt = `Generate concise study notes on: ${subject}.
                 
 Subject: ${subject}
 Level: ${level || 'intermediate'}
@@ -561,29 +537,16 @@ Create notes that:
 3. Include important definitions and examples
 4. Organize with appropriate headings
 5. Keep content concise and focused
-6. Include a brief summary`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          topP: 0.95,
-          maxOutputTokens: 4096
-        }
-      },
-      {
-        params: { key: process.env.GEMINI_API_KEY },
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-    
-    // Extract text from response
-    const notesText = response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+6. Include a brief summary`;
+
+    const notesText = await callGrokAPI(prompt, {
+      temperature: 0.2,
+      maxTokens: 4096
+    });
     
     if (!notesText) {
       console.error("Notes text is empty or undefined!");
-      return res.status(500).json({ error: "Empty response from Gemini API" });
+      return res.status(500).json({ error: "Empty response from Grok API" });
     }
     
     // Parse the notes to provide a structured response
@@ -685,5 +648,36 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add a route for testing the Grok API connection
+app.get('/test-grok', async (req, res) => {
+  try {
+    if (!GROK_API_KEY) {
+      return res.status(500).json({ error: "Missing GROK_API_KEY in environment variables" });
+    }
+    
+    const testResult = await callGrokAPI("Hello! Please respond with a short greeting.", {
+      temperature: 0.7,
+      maxTokens: 50
+    });
+    
+    res.json({
+      success: true,
+      message: "Grok API connection test successful",
+      response: testResult
+    });
+  } catch (error) {
+    console.error("Grok API test failed:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to connect to Grok API",
+      error: error.message,
+      details: error.response?.data
+    });
+  }
+});
+
 // Start the server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Use /test-grok endpoint to test your Grok API connection`);
+});
