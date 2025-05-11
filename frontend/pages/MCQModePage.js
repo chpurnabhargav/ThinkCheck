@@ -99,6 +99,7 @@ const MCQQuizGenerator = () => {
     } catch (error) {
       console.error("Error fetching MCQs:", error);
       setError("Failed to load questions. Please check the server logs.");
+      console.error()
       setLoading(false);
     }
   };

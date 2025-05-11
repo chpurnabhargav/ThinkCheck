@@ -16,7 +16,7 @@ const api = axios.create({
 
 app.get('/', (req, res) => {
   res.send('Welcome to the MCQ Generator API. Use the /generate-mcq, /generate-written, /evaluate-answers, or /generate-roadmap endpoints to interact with the service.');
-  console.log("Active API Key:", process.env.GEMINI_API_KEY);
+  res.send("Active API Key:", process.env.GEMINI_API_KEY);
 });
 
 
