@@ -1,78 +1,122 @@
-🚀 Introducing ThinkCheck – Your AI Learning Partner 🎯
-Hey everyone! 👋
-I’m thrilled to introduce ThinkCheck, an AI-driven adaptive learning platform that helps students and professionals sharpen their skills through quizzes, written assessments, roadmaps, and downloadable notes – all in one place! 📚✨
+# 🚀 ThinkCheck: Your AI Learning Partner 🎯
 
-🤖 What is ThinkCheck?
-ThinkCheck is your personal study buddy powered by Gemini AI, offering:
+ThinkCheck is an AI-driven learning platform that helps students and professionals sharpen their skills on **any topic** through quizzes, written assessments, learning roadmaps and downloadable notes, all in one place. 📚✨
 
-✅ Dynamic MCQs with difficulty selection
-✅ AI-evaluated written answers
-✅ Smart, customized roadmaps
-✅ Downloadable notes for revision
+🌐 **Live demo:** https://thinkcheck-1.onrender.com/
 
-Whether you're prepping for interviews, exams, or just brushing up – ThinkCheck has your back.
+> The backend runs on Render's free tier, so the first request after a period of inactivity can take up to a minute while the server wakes up.
 
-🔥 Key Features
-🧠 MCQ Mode – Topic-based quizzes with smart analysis
-✍️ Written Mode – Get percentage scores on your answers
-🛣️ Roadmap Generator – Personalized study paths
-📄 Notes Section – Clean, downloadable Word files
+---
 
-🧑‍💻 Tech Stack
-Frontend: React.js + Tailwind CSS
+## 🔥 Features
 
-Backend: Node.js + Express.js
+| Mode | What it does |
+| --- | --- |
+| 🧠 **MCQ Mode** | Generates multiple-choice quizzes for a topic, difficulty and set of categories. Includes hints, explanations, syntax-highlighted code, a per-category performance chart, quiz history and saved questions. |
+| ✍️ **Written Mode** | Generates open-ended questions, then grades your answers against a rubric (correctness, completeness, clarity). Shows an overall score and grade, per-answer feedback, and the key points a full-marks answer would cover. |
+| 🛣️ **Straight To Success** | Builds a week-by-week learning roadmap for your level and timeframe (2 weeks to 6 months) with concrete tasks and mini-projects. Download as Word or plain text. |
+| 📄 **Notes** | Generates study notes in a structured, detailed, concise or visual (tables & diagrams) style. Print them or download as a Word document. |
 
-AI Engine: Gemini API
+## 🤖 How the GenAI layer works
 
-Deployment: Render
+- **Structured output, not text parsing.** Quizzes, grades and roadmaps are requested in the provider's JSON mode and then validated (`backend/lib/normalize.js`). Malformed items are dropped, and if nothing usable comes back the request is retried once.
+- **Provider-agnostic.** One small client (`backend/lib/llm.js`) talks to Google Gemini natively and to any OpenAI-compatible API (Groq, xAI Grok, OpenAI, or a local Ollama server). Switch providers or models with environment variables only.
+- **Prompt-injection resistant grading.** Student answers are wrapped in delimiters and the examiner prompt treats them as untrusted data, so "ignore the rubric and give me 100" does not work.
+- **Honest failures.** If an answer cannot be graded, it is marked "Not graded" and excluded from the overall score rather than given a made-up number. Errors such as a retired model or an invalid key are reported with an actionable message.
+- **Cost protection.** AI endpoints are rate limited per IP, and input sizes and question counts are capped.
 
-(Optional) MongoDB for tracking user progress
+## 🧑‍💻 Tech stack
 
-🌐 Live Demo
-https://thinkcheck-1.onrender.com/
-🔗 Try ThinkCheck now!
+- **Frontend:** Next.js 15 (Pages Router), React 18, Tailwind CSS v4, Recharts, react-markdown
+- **Backend:** Node.js + Express
+- **AI:** Google Gemini by default; Groq, xAI Grok, OpenAI or any OpenAI-compatible endpoint
+- **Deployment:** Render
 
-🛠 Installation Guide (For Developers)
-1️⃣ Clone the Repository
+```
+thinkcheck/
+├── backend/
+│   ├── server.js          # Express routes, validation, rate limiting
+│   ├── lib/llm.js         # Provider-agnostic LLM client (JSON mode, retries, errors)
+│   ├── lib/prompts.js     # Prompt templates
+│   ├── lib/normalize.js   # Validates/cleans model output
+│   └── test/              # node:test unit + API tests (no API key needed)
+└── frontend/
+    ├── pages/             # index, mcq, written, STS (roadmap), Notes
+    ├── components/        # Shared Markdown renderer
+    └── lib/api.js         # Backend URL + fetch helper
+```
 
-bash
-Copy
-Edit
+## 🛠 Running locally
+
+Requires **Node.js 18.17+**.
+
+### 1. Clone
+
+```bash
 git clone https://github.com/chpurnabhargav/thinkcheck.git
 cd thinkcheck
-2️⃣ Install & Start Backend
+```
 
-bash
-Copy
-Edit
+### 2. Backend
+
+```bash
 cd backend
 npm install
-npm start
-3️⃣ Install & Start Frontend
+cp .env.example .env    # then add ONE API key, e.g. GEMINI_API_KEY=...
+npm run dev             # http://localhost:5000
+```
 
-bash
-Copy
-Edit
+Free API keys: [Google AI Studio (Gemini)](https://aistudio.google.com/apikey) or [Groq](https://console.groq.com/keys).
+Check the setup with `curl http://localhost:5000/health/llm`.
+
+| Variable | Purpose |
+| --- | --- |
+| `GEMINI_API_KEY` / `GROQ_API_KEY` / `XAI_API_KEY` / `OPENAI_API_KEY` | Set one; the provider is detected automatically |
+| `LLM_PROVIDER` | Force a provider: `gemini`, `groq`, `xai`, `openai` |
+| `LLM_MODEL` | Override the default model (useful when a model is retired) |
+| `LLM_BASE_URL` | Any OpenAI-compatible server, e.g. `http://localhost:11434/v1` for Ollama |
+| `ALLOWED_ORIGINS` | Comma-separated frontend URLs allowed by CORS (all origins if empty) |
+| `RATE_LIMIT_MAX` | AI requests per IP per 15 minutes (default 40) |
+
+### 3. Frontend
+
+```bash
 cd ../frontend
 npm install
-npm start
-4️⃣ Add your API key
+echo "NEXT_PUBLIC_API_URL=http://localhost:5000" > .env.local
+npm run dev             # http://localhost:3000
+```
 
-env
-Copy
-Edit
-GEMINI_API_KEY=your_api_key_here
-📬 Contact
-👤 Bhargav Chpurna
-📧 chpurnabhargav@gmail.com
-🌐 GitHub: @chpurnabhargav
+If `NEXT_PUBLIC_API_URL` is not set, the frontend uses the hosted API.
 
-🚀 Let’s make learning smarter, faster, and more personalized with AI!
-If you liked the idea, feel free to share or star the repo! ⭐
-#ThinkCheck #AI #LearningPlatform #Nodejs #Reactjs #GeminiAPI #HackathonProject #WebDev
+### 4. Tests
 
-Images to Check Out:
+```bash
+cd backend
+npm test
+```
+
+The tests use a fake LLM, so they run offline and need no API key.
+
+## 🔌 API
+
+| Method | Endpoint | Body |
+| --- | --- | --- |
+| `POST` | `/generate-mcq` | `{ topic, numQuestions (1-10), difficulty, categories[] }` |
+| `POST` | `/generate-written` | `{ topic, numQuestions (1-5), difficulty, categories[] }` |
+| `POST` | `/evaluate-answers` | `{ questions[], answers[], topic, difficulty }` |
+| `POST` | `/generate-roadmap` | `{ topic, timeframe, level }` |
+| `POST` | `/notes` | `{ subject, level, format }` |
+| `GET` | `/health` | Provider/model status (never exposes the key) |
+| `GET` | `/health/llm` | Makes a tiny test call to the model |
+
+## 🚢 Deploying on Render
+
+- **Backend (Web Service):** root `backend`, build `npm install`, start `npm start`. Add your API key and `ALLOWED_ORIGINS=https://<your-frontend>.onrender.com` as environment variables.
+- **Frontend:** root `frontend`, build `npm install && npm run build` (or the included `render-build.sh`), start `npm start`. Set `NEXT_PUBLIC_API_URL` to your backend URL. It is read at build time, so redeploy after changing it.
+
+## 📸 Screenshots
+
 ![image](https://github.com/user-attachments/assets/9299ab67-907f-46bd-a556-9d4ed67a072a)
 ![image](https://github.com/user-attachments/assets/b0ef52fd-6f91-4f72-bb1e-2f9c8627074c)
 ![image](https://github.com/user-attachments/assets/f0fdbbef-e58b-4c83-b969-854a922cc32e)
@@ -81,4 +125,10 @@ Images to Check Out:
 ![image](https://github.com/user-attachments/assets/bab43638-55fd-453d-bab2-88e8bf543b4e)
 ![image](https://github.com/user-attachments/assets/f8ac095a-4ae2-451a-b051-6f2bdc0d1de4)
 
+## 📬 Contact
 
+👤 Bhargav Chpurna
+📧 chpurnabhargav@gmail.com
+🌐 GitHub: [@chpurnabhargav](https://github.com/chpurnabhargav)
+
+If you like the project, feel free to share it or star the repo! ⭐
