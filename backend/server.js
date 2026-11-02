@@ -246,18 +246,22 @@ function createApp({ llm, env = process.env } = {}) {
   return app;
 }
 
-if (require.main === module) {
-  const config = resolveConfig();
-  const app = createApp({ llm: createLLM(config) });
-  const port = process.env.PORT || 5000;
+// The default app. `npm start` runs it as a normal server; serverless hosts
+// such as Vercel import this module and use the exported app directly.
+const config = resolveConfig();
+const app = createApp({ llm: createLLM(config) });
 
+if (config.requiresKey && !config.apiKey) {
+  console.warn(`WARNING: no API key found. Set ${config.keyEnvName} in backend/.env`);
+}
+
+if (require.main === module) {
+  const port = process.env.PORT || 5000;
   app.listen(port, () => {
     console.log(`ThinkCheck API listening on port ${port}`);
     console.log(`LLM provider: ${config.provider} (model: ${config.model})`);
-    if (config.requiresKey && !config.apiKey) {
-      console.warn(`WARNING: no API key found. Set ${config.keyEnvName} in backend/.env`);
-    }
   });
 }
 
-module.exports = { createApp };
+module.exports = app;
+module.exports.createApp = createApp;

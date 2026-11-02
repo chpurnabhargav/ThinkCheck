@@ -30,7 +30,7 @@ ThinkCheck is an AI-driven learning platform that helps students and professiona
 - **Frontend:** Next.js 15 (Pages Router), React 18, Tailwind CSS v4, Recharts, react-markdown
 - **Backend:** Node.js + Express
 - **AI:** Google Gemini by default; Groq, xAI Grok, OpenAI or any OpenAI-compatible endpoint
-- **Deployment:** Render
+- **Deployment:** Vercel or Render
 
 ```
 thinkcheck/
@@ -48,7 +48,7 @@ thinkcheck/
 
 ## 🛠 Running locally
 
-Requires **Node.js 18.17+**.
+Requires **Node.js 18.17+**. The backend and frontend are separate apps: run each in its **own terminal**, from inside its folder (there is no `npm run dev` at the repo root).
 
 ### 1. Clone
 
@@ -65,6 +65,8 @@ npm install
 cp .env.example .env    # then add ONE API key, e.g. GEMINI_API_KEY=...
 npm run dev             # http://localhost:5000
 ```
+
+On Windows PowerShell use `copy .env.example .env` instead of `cp` (skip it if you already have a `.env`).
 
 Free API keys: [Google AI Studio (Gemini)](https://aistudio.google.com/apikey) or [Groq](https://console.groq.com/keys).
 Check the setup with `curl http://localhost:5000/health/llm`.
@@ -86,6 +88,8 @@ npm install
 echo "NEXT_PUBLIC_API_URL=http://localhost:5000" > .env.local
 npm run dev             # http://localhost:3000
 ```
+
+On Windows PowerShell create the file with `Set-Content .env.local "NEXT_PUBLIC_API_URL=http://localhost:5000"` (PowerShell's `echo >` saves it in an encoding Next.js can't read).
 
 If `NEXT_PUBLIC_API_URL` is not set, the frontend uses the hosted API.
 
@@ -110,7 +114,29 @@ The tests use a fake LLM, so they run offline and need no API key.
 | `GET` | `/health` | Provider/model status (never exposes the key) |
 | `GET` | `/health/llm` | Makes a tiny test call to the model |
 
-## 🚢 Deploying on Render
+## 🚢 Deploying
+
+### Vercel (recommended)
+
+Create **two Vercel projects from this same repository**, one per folder.
+
+**1. Backend**
+1. On [vercel.com/new](https://vercel.com/new), import the repository.
+2. Set **Root Directory** to `backend`. Vercel detects the Express app; leave the build and output settings empty.
+3. Add an environment variable with your API key, e.g. `GEMINI_API_KEY`.
+4. Deploy, then open `https://<backend>.vercel.app/health/llm` to check the model responds.
+
+**2. Frontend**
+1. Import the same repository again as a second project.
+2. Set **Root Directory** to `frontend` (framework: Next.js).
+3. Add `NEXT_PUBLIC_API_URL=https://<backend>.vercel.app` (no trailing slash).
+4. Deploy.
+
+**3. Lock down CORS:** in the backend project add `ALLOWED_ORIGINS=https://<frontend>.vercel.app` and redeploy the backend.
+
+Notes: environment variable changes only apply after a redeploy. On Vercel the per-IP rate limit is kept in memory per function instance, so it is a soft limit.
+
+### Render
 
 - **Backend (Web Service):** root `backend`, build `npm install`, start `npm start`. Add your API key and `ALLOWED_ORIGINS=https://<your-frontend>.onrender.com` as environment variables.
 - **Frontend:** root `frontend`, build `npm install && npm run build` (or the included `render-build.sh`), start `npm start`. Set `NEXT_PUBLIC_API_URL` to your backend URL. It is read at build time, so redeploy after changing it.

@@ -1,6 +1,8 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "description": "ThinkCheck API: AI-generated quizzes, answer grading, roadmaps and notes",
+  "type": "commonjs",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,7 +12,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "ThinkCheck API: AI-generated quizzes, answer grading, roadmaps and notes",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
